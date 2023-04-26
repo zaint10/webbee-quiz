@@ -1,10 +1,9 @@
-import Event from './entities/event.entity';
-import Workshop from './entities/workshop.entity';
-import { col, Op } from 'sequelize';
-import Sequelize from 'sequelize';
+import Event from "./entities/event.entity";
+import Workshop from "./entities/workshop.entity";
+import { col, Op } from "sequelize";
+import Sequelize from "sequelize";
 
 export class EventsService {
-
   async getWarmupEvents() {
     return await Event.findAll();
   }
@@ -86,17 +85,23 @@ export class EventsService {
     ```
      */
 
-    async getEventsWithWorkshops() {
-      const eventsWithWorkshops = await Event.findAll({
-        include: {
-          model: Workshop,
-          as: 'workshops',
-          where: { eventId: col('Event.id') },
-        },
-      });
-    
-      return eventsWithWorkshops.map((event) => event.toJSON());
-    }
+  /**
+   * This async function retrieves all events along with their workshops.
+   * It uses Sequelize ORM to perform the database operations.
+   */
+  async getEventsWithWorkshops() {
+    // Using Sequelize ORM to query the database
+    const eventsWithWorkshops = await Event.findAll({
+      include: {
+        model: Workshop,
+        as: "workshops",
+        where: { eventId: col("Event.id") },
+      },
+    });
+
+    // Converting the result to JSON and returning
+    return eventsWithWorkshops.map((event) => event.toJSON());
+  }
 
   /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
     Requirements:
@@ -164,19 +169,27 @@ export class EventsService {
     ]
     ```
      */
-  
-    async getFutureEventWithWorkshops() {
-      const now = new Date();
-      const futureEvents = await Event.findAll({
-        include: {
-          model: Workshop,
-          as: 'workshops',
-        },
-        where: {
-          '$workshops.start$': { [Op.gt]: now },
-        },
-      });
-    
-      return futureEvents.map((event) => event.toJSON());
-    }
+
+  /**
+   * Retrieves all events with associated workshops that start after the current time
+   * @returns An array of event objects with associated workshops
+   */
+  async getFutureEventWithWorkshops() {
+    // Get the current date and time
+    const now = new Date();
+
+    // Find all events with associated workshops that start after the current time
+    const futureEvents = await Event.findAll({
+      include: {
+        model: Workshop,
+        as: "workshops",
+      },
+      where: {
+        "$workshops.start$": { [Op.gt]: now },
+      },
+    });
+
+    // Convert the events to plain objects
+    return futureEvents.map((event) => event.toJSON());
+  }
 }
