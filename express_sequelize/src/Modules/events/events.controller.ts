@@ -34,19 +34,23 @@ class EventController extends Controller {
     async getEventsWithWorkshops(req: Request, res: Response, next: NextFunction) {
         return await this.eventsService.getEventsWithWorkshops()
           .then((data) => {
-              res.json(data);
+            console.error("response events:", data);
+            res.json(data);
           })
           .catch((e: Error) => {
-              next(e);
+            console.error("Error retrieving events:", e);
+            next(e);
           });
     }
 
     async getFutureEventWithWorkshops(req: Request, res: Response, next: NextFunction) {
         return await this.eventsService.getFutureEventWithWorkshops()
           .then((data) => {
-              res.json(data);
+            console.error("response future events:", data);
+            res.json(data);
           })
           .catch((e: Error) => {
+            console.error("Error retrieving events:", e);
             next(e);
         });
     }
