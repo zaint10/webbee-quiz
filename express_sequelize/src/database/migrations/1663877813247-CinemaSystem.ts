@@ -1,4 +1,4 @@
-import { QueryInterface } from 'sequelize';
+import { QueryInterface, DataTypes } from 'sequelize';
 
 export default {
   /**
@@ -31,12 +31,133 @@ export default {
    * As a cinema owner I don't want to configure the seating for every show
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  up: (queryInterface: QueryInterface): Promise<void> => {
-    throw new Error('TODO: implement migration in task 4');
+  up: async (queryInterface: QueryInterface): Promise<void> => {
+    await queryInterface.createTable('Movies', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      duration: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+    });
+
+    await queryInterface.createTable('Shows', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      movieId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Movies',
+          key: 'id',
+        },
+      },
+      startTime: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      roomId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Rooms',
+          key: 'id',
+        },
+      },
+      price: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+    });
+
+    await queryInterface.createTable('Rooms', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      capacity: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      cinemaId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Cinemas',
+          key: 'id',
+        },
+      },
+    });
+
+    await queryInterface.createTable('Cinemas', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      location: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+    });
+
+    await queryInterface.createTable('Seats', {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      roomId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Rooms',
+          key: 'id',
+        },
+      },
+      seatType: {
+        type: DataTypes.ENUM('standard', 'vip', 'couple', 'super_vip'),
+        allowNull: false,
+      },
+      seatNumber: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      isBooked: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+    });
+
+    await queryInterface.addIndex('Shows', ['startTime']);
   },
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  down: (queryInterface: QueryInterface) => {
-    // do nothing
+  down: async (queryInterface: QueryInterface): Promise<void> => {
+    await queryInterface.dropTable('Seats');
+    await queryInterface.dropTable('Shows');
+    await queryInterface.dropTable('Rooms');
+    await queryInterface.dropTable('Movies');
+    await queryInterface.dropTable('Cinemas');
   },
 };
