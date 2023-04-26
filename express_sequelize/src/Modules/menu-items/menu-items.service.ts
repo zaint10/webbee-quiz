@@ -1,6 +1,5 @@
 import MenuItem  from "./entities/menu-item.entity";
 export class MenuItemsService {
-
   /* TODO: complete getMenuItems so that it returns a nested menu structure
     Requirements:
     - your code should result in EXACTLY one SQL query no matter the nesting level or the amount of menu items.
@@ -76,29 +75,41 @@ export class MenuItemsService {
     ]
   */
 
-    async getMenuItems(): Promise<any> {
-        const rootItems = await MenuItem.findAll({ where: { parentId: null } });
-        const menuItems = [];
-    
-        for (const item of rootItems) {
-          const menuItem = item.toJSON();
-          menuItem.children = await this.getChildren(item.id);
-          menuItems.push(menuItem);
-        }
-    
-        return menuItems;
-      }
-    
-      private async getChildren(parentId: number): Promise<any> {
-        const children = await MenuItem.findAll({ where: { parentId } });
-        const result = [];
-    
-        for (const child of children) {
-          const childItem = child.toJSON();
-          childItem.children = await this.getChildren(child.id);
-          result.push(childItem);
-        }
-    
-        return result;
-      }
+  // Get all top-level menu items (items without parent)
+  async getMenuItems(): Promise<any> {
+    // Fetch all menu items that have no parent
+    const rootItems = await MenuItem.findAll({ where: { parentId: null } });
+
+    // Create an empty array to store menu items
+    const menuItems = [];
+
+    // Loop through each root item and get its children recursively
+    for (const item of rootItems) {
+      const menuItem = item.toJSON(); // Convert the item to a JSON object
+      menuItem.children = await this.getChildren(item.id); // Get the children of the current item
+      menuItems.push(menuItem); // Add the item and its children to the menu items array
+    }
+
+    // Return the menu items array
+    return menuItems;
+  }
+
+  // A private helper function to recursively get the children of a menu item
+  private async getChildren(parentId: number): Promise<any> {
+    // Fetch all children of the parent item
+    const children = await MenuItem.findAll({ where: { parentId } });
+
+     // Create an empty array to store the child menu items
+    const result = [];
+
+    // Loop through each child and get its children recursively
+    for (const child of children) {
+      const childItem = child.toJSON(); // Convert the child to a JSON object
+      childItem.children = await this.getChildren(child.id); // Get the children of the current child
+      result.push(childItem); // Add the child and its children to the result array
+    }
+
+    // Return the result array
+    return result;
+  }
 }
